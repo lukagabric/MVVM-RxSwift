@@ -32,10 +32,6 @@ class WeatherViewModel {
     //MARK: - Init
     
     init(weatherDataService: WeatherDataService, refreshDriver: Driver<Void>) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        
         let weatherDataEventDriver = refreshDriver
             .startWith(())
             .flatMapLatest { _ -> Driver<WeatherDataEvent> in
@@ -75,6 +71,11 @@ class WeatherViewModel {
         self.temperature = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.temperature) }
         self.realFeel = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.realFeel) }
         self.precipitationPercentage = weatherDataDriver.map { String(format: "%.0f%%", $0.precipitationPercentage) }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        
         self.updatedAt = weatherDataDriver.map { dateFormatter.string(from: $0.updatedAt) }
     }
     

@@ -24,6 +24,12 @@ class WeatherViewModel {
     let hasFailed: Driver<Bool>
     
     private let weatherDataService: WeatherDataService
+    
+    private enum WeatherDataEvent {
+        case weatherData(WeatherData)
+        case error
+        case loading
+    }
         
     //MARK: - Init
     
@@ -34,19 +40,41 @@ class WeatherViewModel {
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
         
-        let refreshDataDriver = refreshDriver.startWith(())
-        let fetchWeatherDataObservable = refreshDataDriver.asObservable().flatMapLatest { weatherDataService.fetchWeatherData() }
-        let fetchWeatherDataDriver = fetchWeatherDataObservable.asDriver(onErrorDriveWith: Driver.empty())
-        let fetchWeatherDataErrorDriver = fetchWeatherDataObservable.map { _ in false }.asDriver(onErrorJustReturn: false)
+        let weatherDataEventDriver = refreshDriver
+            .startWith(())
+            .flatMapLatest { _ -> Driver<WeatherDataEvent> in
+                return weatherDataService.fetchWeatherData()
+                    .map { .weatherData($0) }
+                    .asDriver(onErrorJustReturn: .error)
+                    .startWith(.loading)
+        }
+        let weatherDataDriver = weatherDataEventDriver
+            .flatMapLatest { event -> Driver<WeatherData> in
+                switch event {
+                case .weatherData(let data): return Driver.just(data)
+                default: return Driver.empty()
+                }
+        }
+        self.isLoading = weatherDataEventDriver
+            .map { event in
+                switch event {
+                case .loading: return true
+                default: return false
+                }
+        }
+        self.hasFailed = weatherDataEventDriver
+            .map { event in
+                switch event {
+                case .error: return true
+                default: return false
+                }
+        }
         
-        self.locationName = fetchWeatherDataDriver.map { $0.locationName }
-        self.temperature = fetchWeatherDataDriver.map { String(format: "%.1f", $0.temperature) }
-        self.realFeel = fetchWeatherDataDriver.map { String(format: "%.1f", $0.realFeel) }
-        self.precipitationPercentage = fetchWeatherDataDriver.map { String(format: "%.0f%%", $0.precipitationPercentage) }
-        self.updatedAt = fetchWeatherDataDriver.map { dateFormatter.string(from: $0.updatedAt) }
-        
-        self.isLoading = Driver.of(refreshDataDriver.map { _ in true }, fetchWeatherDataDriver.map { _ in false }).merge()
-        self.hasFailed = Driver.of(refreshDataDriver.map { _ in true }, fetchWeatherDataErrorDriver).merge()
+        self.locationName = weatherDataDriver.map { $0.locationName }
+        self.temperature = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.temperature) }
+        self.realFeel = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.realFeel) }
+        self.precipitationPercentage = weatherDataDriver.map { String(format: "%.0f%%", $0.precipitationPercentage) }
+        self.updatedAt = weatherDataDriver.map { dateFormatter.string(from: $0.updatedAt) }
     }
     
     //MARK: -

@@ -47,8 +47,6 @@ class WeatherViewController: UIViewController {
         
         self.configureViewModel()
         self.configureBindings()
-        
-        self.loadingView.alpha = 0.5
     }
     
     //MARK: - Private
@@ -65,6 +63,7 @@ class WeatherViewController: UIViewController {
         self.viewModel.precipitationPercentage.drive(self.precipitationLabel.rx.text).disposed(by: self.disposeBag)
         self.viewModel.updatedAt.drive(self.updatedAtLabel.rx.text).disposed(by: self.disposeBag)
         self.viewModel.isLoading.map { !$0 }.drive(self.loadingView.rx.isHidden).disposed(by: self.disposeBag)
+        self.viewModel.isLoading.map { !$0 }.drive(self.refreshButton.rx.isEnabled).disposed(by: self.disposeBag)
         self.viewModel.hasFailed.map { !$0 }.drive(self.errorView.rx.isHidden).disposed(by: self.disposeBag)
     }
     

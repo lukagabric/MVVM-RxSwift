@@ -37,6 +37,7 @@ class WeatherViewModel {
         let refreshDataDriver = refreshDriver.startWith(())
         let fetchWeatherDataObservable = refreshDataDriver.asObservable().flatMapLatest { weatherDataService.fetchWeatherData() }
         let fetchWeatherDataDriver = fetchWeatherDataObservable.asDriver(onErrorDriveWith: Driver.empty())
+        let fetchWeatherDataErrorDriver = fetchWeatherDataObservable.map { _ in false }.asDriver(onErrorJustReturn: false)
         
         self.locationName = fetchWeatherDataDriver.map { $0.locationName }
         self.temperature = fetchWeatherDataDriver.map { String(format: "%.1f", $0.temperature) }
@@ -45,7 +46,7 @@ class WeatherViewModel {
         self.updatedAt = fetchWeatherDataDriver.map { dateFormatter.string(from: $0.updatedAt) }
         
         self.isLoading = Driver.of(refreshDataDriver.map { _ in true }, fetchWeatherDataDriver.map { _ in false }).merge()
-        self.hasFailed = Driver.of(refreshDataDriver.map { _ in true }, fetchWeatherDataObservable.map { _ in false }.asDriver(onErrorJustReturn: true)).merge()
+        self.hasFailed = Driver.of(refreshDataDriver.map { _ in true }, fetchWeatherDataErrorDriver).merge()
     }
     
     //MARK: -

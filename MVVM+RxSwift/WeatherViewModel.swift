@@ -23,8 +23,6 @@ class WeatherViewModel {
     let isLoading: Driver<Bool>
     let hasFailed: Driver<Bool>
     
-    private let weatherDataService: WeatherDataService
-    
     private enum WeatherDataEvent {
         case weatherData(WeatherData)
         case error
@@ -34,8 +32,6 @@ class WeatherViewModel {
     //MARK: - Init
     
     init(weatherDataService: WeatherDataService, refreshDriver: Driver<Void>) {
-        self.weatherDataService = weatherDataService
-        
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
@@ -48,13 +44,7 @@ class WeatherViewModel {
                     .asDriver(onErrorJustReturn: .error)
                     .startWith(.loading)
         }
-        let weatherDataDriver = weatherDataEventDriver
-            .flatMapLatest { event -> Driver<WeatherData> in
-                switch event {
-                case .weatherData(let data): return Driver.just(data)
-                default: return Driver.empty()
-                }
-        }
+        
         self.isLoading = weatherDataEventDriver
             .map { event in
                 switch event {
@@ -62,6 +52,7 @@ class WeatherViewModel {
                 default: return false
                 }
         }
+        
         self.hasFailed = weatherDataEventDriver
             .map { event in
                 switch event {
@@ -69,6 +60,16 @@ class WeatherViewModel {
                 default: return false
                 }
         }
+        
+        let weatherDataDriver = weatherDataEventDriver
+            .map { event -> WeatherData? in
+                switch event {
+                case .weatherData(let data): return data
+                default: return nil
+                }
+            }
+            .filter { $0 != nil }
+            .map { $0! }
         
         self.locationName = weatherDataDriver.map { $0.locationName }
         self.temperature = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.temperature) }

@@ -24,9 +24,9 @@ class WeatherViewModel {
     let hasFailed: Driver<Bool>
     
     private enum WeatherDataEvent {
+        case loading
         case weatherData(WeatherData)
         case error
-        case loading
     }
         
     //MARK: - Init

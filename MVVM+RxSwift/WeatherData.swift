@@ -10,11 +10,11 @@ import Foundation
 
 public struct WeatherData {
     
-    var locationName: String
-    var temperature: Float
-    var realFeel: Float
-    var precipitationPercentage: Float
-    var updatedAt: Date
+    public var locationName: String
+    public var temperature: Float
+    public var realFeel: Float
+    public var precipitationPercentage: Float
+    public var updatedAt: Date
     
 }
 

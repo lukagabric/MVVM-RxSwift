@@ -17,66 +17,76 @@ class WeatherViewModel {
     let locationName: Driver<String>
     let temperature: Driver<String>
     let realFeel: Driver<String>
-    let precipitationPercentage: Driver<String>
+    let precipitation: Driver<String>
     let updatedAt: Driver<String>
     
     let isLoading: Driver<Bool>
     let hasFailed: Driver<Bool>
     
-    private enum WeatherDataEvent {
-        case loading
-        case weatherData(WeatherData)
-        case error
-    }
-        
+    private let locationNameVar = Variable<String>("")
+    private let temperatureVar = Variable<String>("")
+    private let realFeelVar = Variable<String>("")
+    private let precipitationVar = Variable<String>("")
+    private let updatedAtVar = Variable<String>("")
+    
+    private let isLoadingVar = Variable<Bool>(false)
+    private let hasFailedVar = Variable<Bool>(false)
+    
+    private let dateFormatter: DateFormatter
+    
+    private let disposeBag = DisposeBag()
+    
+    private let weatherDataService: WeatherDataService
+    
     //MARK: - Init
     
     init(weatherDataService: WeatherDataService, refreshDriver: Driver<Void>) {
-        let weatherDataEventDriver = refreshDriver
-            .startWith(())
-            .flatMapLatest { _ -> Driver<WeatherDataEvent> in
-                return weatherDataService.fetchWeatherData()
-                    .map { .weatherData($0) }
-                    .asDriver(onErrorJustReturn: .error)
-                    .startWith(.loading)
-        }
+        self.weatherDataService = weatherDataService
         
-        self.isLoading = weatherDataEventDriver
-            .map { event in
-                switch event {
-                case .loading: return true
-                default: return false
-                }
-        }
+        self.locationName = self.locationNameVar.asDriver()
+        self.temperature = self.temperatureVar.asDriver()
+        self.realFeel = self.realFeelVar.asDriver()
+        self.precipitation = self.precipitationVar.asDriver()
+        self.updatedAt = self.updatedAtVar.asDriver()
         
-        self.hasFailed = weatherDataEventDriver
-            .map { event in
-                switch event {
-                case .error: return true
-                default: return false
-                }
-        }
+        self.isLoading = self.isLoadingVar.asDriver()
+        self.hasFailed = self.hasFailedVar.asDriver()
         
-        let weatherDataDriver = weatherDataEventDriver
-            .map { event -> WeatherData? in
-                switch event {
-                case .weatherData(let data): return data
-                default: return nil
-                }
-            }
-            .filter { $0 != nil }
-            .map { $0! }
+        self.dateFormatter = DateFormatter()
+        self.dateFormatter.dateStyle = .medium
+        self.dateFormatter.timeStyle = .short
         
-        self.locationName = weatherDataDriver.map { $0.locationName }
-        self.temperature = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.temperature) }
-        self.realFeel = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.realFeel) }
-        self.precipitationPercentage = weatherDataDriver.map { String(format: "%.0f%%", $0.precipitationPercentage) }
+        refreshDriver.startWith(()).drive(onNext: { [weak self] in self?.refreshData() }).disposed(by: self.disposeBag)
+    }
+    
+    //MARK: - Private
+    
+    private func refreshData() {
+        self.hasFailedVar.value = false
+        self.isLoadingVar.value = true
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        
-        self.updatedAt = weatherDataDriver.map { dateFormatter.string(from: $0.updatedAt) }
+        self.weatherDataService.fetchWeatherData().subscribe(
+            onNext: { [weak self] weatherData in
+                guard let sself = self else { return }
+                
+                sself.locationNameVar.value = weatherData.locationName
+                sself.temperatureVar.value = String(format: "%.1f\u{00B0}C", weatherData.temperature)
+                sself.realFeelVar.value = String(format: "%.1f\u{00B0}C", weatherData.realFeel)
+                sself.precipitationVar.value = String(format: "%.0f%%", weatherData.precipitation)
+                sself.updatedAtVar.value = sself.dateFormatter.string(from: weatherData.updatedAt)
+            },
+            onError: { [weak self] _ in
+                guard let sself = self else { return }
+                
+                sself.isLoadingVar.value = false
+                sself.hasFailedVar.value = true
+            },
+            onCompleted: { [weak self] in
+                guard let sself = self else { return }
+                
+                sself.isLoadingVar.value = false
+                sself.hasFailedVar.value = false
+        }).disposed(by: self.disposeBag)
     }
     
     //MARK: -

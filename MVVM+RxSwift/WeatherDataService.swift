@@ -38,9 +38,9 @@ open class WeatherDataService {
         let tempDiff = -8 + Float(arc4random_uniform(160)) / 10.0
         let realFeel = temperature + tempDiff
         
-        let precipitationPercentage = Float(arc4random_uniform(101))
+        let precipitation = Float(arc4random_uniform(101))
         
-        let weatherData = WeatherData(locationName: "Osijek", temperature: temperature, realFeel: realFeel, precipitationPercentage: precipitationPercentage, updatedAt: date)
+        let weatherData = WeatherData(locationName: "Osijek", temperature: temperature, realFeel: realFeel, precipitation: precipitation, updatedAt: date)
 
         return weatherData
     }

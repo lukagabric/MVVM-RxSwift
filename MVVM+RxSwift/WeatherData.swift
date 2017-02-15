@@ -13,7 +13,7 @@ public struct WeatherData {
     public var locationName: String
     public var temperature: Float
     public var realFeel: Float
-    public var precipitationPercentage: Float
+    public var precipitation: Float
     public var updatedAt: Date
     
 }
@@ -23,6 +23,6 @@ public func ==(lhs: WeatherData, rhs: WeatherData) -> Bool {
     return lhs.locationName == rhs.locationName &&
         lhs.temperature == rhs.temperature &&
         lhs.realFeel == rhs.realFeel &&
-        lhs.precipitationPercentage == rhs.precipitationPercentage &&
+        lhs.precipitation == rhs.precipitation &&
         lhs.updatedAt == rhs.updatedAt
 }

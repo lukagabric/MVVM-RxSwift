@@ -60,7 +60,7 @@ class WeatherViewController: UIViewController {
         self.viewModel.locationName.drive(self.locationLabel.rx.text).disposed(by: self.disposeBag)
         self.viewModel.temperature.drive(self.temperatureLabel.rx.text).disposed(by: self.disposeBag)
         self.viewModel.realFeel.drive(self.realFeelLabel.rx.text).disposed(by: self.disposeBag)
-        self.viewModel.precipitationPercentage.drive(self.precipitationLabel.rx.text).disposed(by: self.disposeBag)
+        self.viewModel.precipitation.drive(self.precipitationLabel.rx.text).disposed(by: self.disposeBag)
         self.viewModel.updatedAt.drive(self.updatedAtLabel.rx.text).disposed(by: self.disposeBag)
         self.viewModel.isLoading.map { !$0 }.drive(self.loadingView.rx.isHidden).disposed(by: self.disposeBag)
         self.viewModel.isLoading.map { !$0 }.drive(self.refreshButton.rx.isEnabled).disposed(by: self.disposeBag)

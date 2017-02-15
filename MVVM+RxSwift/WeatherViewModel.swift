@@ -17,7 +17,7 @@ class WeatherViewModel {
     let locationName: Driver<String>
     let temperature: Driver<String>
     let realFeel: Driver<String>
-    let precipitationPercentage: Driver<String>
+    let precipitation: Driver<String>
     let updatedAt: Driver<String>
     
     let isLoading: Driver<Bool>
@@ -70,7 +70,7 @@ class WeatherViewModel {
         self.locationName = weatherDataDriver.map { $0.locationName }
         self.temperature = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.temperature) }
         self.realFeel = weatherDataDriver.map { String(format: "%.1f\u{00B0}C", $0.realFeel) }
-        self.precipitationPercentage = weatherDataDriver.map { String(format: "%.0f%%", $0.precipitationPercentage) }
+        self.precipitation = weatherDataDriver.map { String(format: "%.0f%%", $0.precipitation) }
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium

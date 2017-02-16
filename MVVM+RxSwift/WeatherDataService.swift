@@ -17,8 +17,13 @@ open class WeatherDataService {
                 let time = 0.5 + TimeInterval(arc4random_uniform(10)) / 10.0
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + time) {
-                    observer.onNext(sself.createRandomWeatherData())
-                    observer.onCompleted()
+                    let shouldFail = arc4random_uniform(2) == 0
+                    if shouldFail {
+                        observer.onError(NSError(domain: "Fake network error", code: 0, userInfo: nil))
+                    } else {
+                        observer.onNext(sself.createRandomWeatherData())
+                        observer.onCompleted()
+                    }
                 }
             }
             
@@ -26,7 +31,6 @@ open class WeatherDataService {
         }
         
         return observable.shareReplay(1)
-
     }
     
     fileprivate func createRandomWeatherData() -> WeatherData {
@@ -46,31 +50,3 @@ open class WeatherDataService {
     }
     
 }
-
-
-open class OccasionalErrorWeatherDataService: WeatherDataService {
-    
-    open override func fetchWeatherData() -> Observable<WeatherData> {
-        let observable = Observable<WeatherData>.create { [weak self] observer in
-            if let sself = self {
-                let time = 0.5 + TimeInterval(arc4random_uniform(10)) / 10.0
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + time) {
-                    let shouldFail = arc4random_uniform(2) == 0
-                    if shouldFail {
-                        observer.onError(NSError(domain: "Fake network error", code: 0, userInfo: nil))
-                    } else {
-                        observer.onNext(sself.createRandomWeatherData())
-                        observer.onCompleted()
-                    }
-                }
-            }
-            
-            return Disposables.create()
-        }
-        
-        return observable.shareReplay(1)
-    }
-    
-}
-

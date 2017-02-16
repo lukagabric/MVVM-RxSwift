@@ -17,12 +17,3 @@ public struct WeatherData {
     public var updatedAt: Date
     
 }
-
-extension WeatherData: Equatable {}
-public func ==(lhs: WeatherData, rhs: WeatherData) -> Bool {
-    return lhs.locationName == rhs.locationName &&
-        lhs.temperature == rhs.temperature &&
-        lhs.realFeel == rhs.realFeel &&
-        lhs.precipitation == rhs.precipitation &&
-        lhs.updatedAt == rhs.updatedAt
-}

@@ -112,6 +112,43 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		4121A3211E58A45B0098B8E8 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				41DDE2C31E53230D0041535A /* WeatherData.swift */,
+				41AB09031E52F65F0038A003 /* WeatherDataService.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		4121A3221E58A4680098B8E8 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				41AB08D61E52EE1D0038A003 /* WeatherViewController.swift */,
+				4162EAFB1E532C3500707EB2 /* WeatherViewController.xib */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		4121A3231E58A4710098B8E8 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				4162EAFD1E532D3B00707EB2 /* WeatherViewModel.swift */,
+			);
+			name = ViewModel;
+			sourceTree = "<group>";
+		};
+		4121A3241E58A48F0098B8E8 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				41AB08D41E52EE1D0038A003 /* AppDelegate.swift */,
+				41AB08DB1E52EE1D0038A003 /* Assets.xcassets */,
+				41AB08DD1E52EE1D0038A003 /* LaunchScreen.storyboard */,
+				41AB08E01E52EE1D0038A003 /* Info.plist */,
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
 		41AB08C81E52EE1C0038A003 = {
 			isa = PBXGroup;
 			children = (
@@ -137,15 +174,10 @@
 		41AB08D31E52EE1D0038A003 /* MVVM+RxSwift */ = {
 			isa = PBXGroup;
 			children = (
-				41AB08D41E52EE1D0038A003 /* AppDelegate.swift */,
-				4162EAFD1E532D3B00707EB2 /* WeatherViewModel.swift */,
-				41AB08D61E52EE1D0038A003 /* WeatherViewController.swift */,
-				4162EAFB1E532C3500707EB2 /* WeatherViewController.xib */,
-				41DDE2C31E53230D0041535A /* WeatherData.swift */,
-				41AB09031E52F65F0038A003 /* WeatherDataService.swift */,
-				41AB08DB1E52EE1D0038A003 /* Assets.xcassets */,
-				41AB08DD1E52EE1D0038A003 /* LaunchScreen.storyboard */,
-				41AB08E01E52EE1D0038A003 /* Info.plist */,
+				4121A3211E58A45B0098B8E8 /* Model */,
+				4121A3221E58A4680098B8E8 /* View */,
+				4121A3231E58A4710098B8E8 /* ViewModel */,
+				4121A3241E58A48F0098B8E8 /* App */,
 			);
 			path = "MVVM+RxSwift";
 			sourceTree = "<group>";

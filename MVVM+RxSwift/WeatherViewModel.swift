@@ -24,11 +24,19 @@ class WeatherViewModel {
     let hasFailed: Driver<Bool>
     
     private enum WeatherDataEvent {
-        case loading
-        case weatherData(WeatherData)
+        case loading(fallbackData: WeatherData?)
+        case weatherData(newData: WeatherData)
         case error
-    }
         
+        var weatherData: WeatherData? {
+            switch self {
+            case .loading(let data): return data
+            case .weatherData(let data): return data
+            case .error: return nil
+            }
+        }
+    }
+    
     //MARK: - Init
     
     init(weatherDataService: WeatherDataService, refreshDriver: Driver<Void>) {
@@ -36,9 +44,18 @@ class WeatherViewModel {
             .startWith(())
             .flatMapLatest { _ -> Driver<WeatherDataEvent> in
                 return weatherDataService.fetchWeatherData()
-                    .map { .weatherData($0) }
+                    .map { .weatherData(newData: $0) }
                     .asDriver(onErrorJustReturn: .error)
-                    .startWith(.loading)
+                    .startWith(.loading(fallbackData: nil))
+            }.scan(WeatherDataEvent.loading(fallbackData: nil)) { oldValue, newValue in
+                if case .error = newValue, let previousWeatherData = oldValue.weatherData {
+                    return .weatherData(newData: previousWeatherData)
+                }
+                else if case .loading(_) = newValue {
+                    return .loading(fallbackData: oldValue.weatherData)
+                }
+                
+                return newValue
         }
         
         self.isLoading = weatherDataEventDriver

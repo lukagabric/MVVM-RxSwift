@@ -38,6 +38,8 @@ class WeatherViewModel {
     
     private let weatherDataService: WeatherDataService
     
+    private var weatherData: WeatherData? = nil
+    
     //MARK: - Init
     
     init(weatherDataService: WeatherDataService, refreshDriver: Driver<Void>) {
@@ -68,7 +70,8 @@ class WeatherViewModel {
         self.weatherDataService.fetchWeatherData().subscribe(
             onNext: { [weak self] weatherData in
                 guard let sself = self else { return }
-                
+
+                sself.weatherData = weatherData
                 sself.locationNameVar.value = weatherData.locationName
                 sself.temperatureVar.value = String(format: "%.1f\u{00B0}C", weatherData.temperature)
                 sself.realFeelVar.value = String(format: "%.1f\u{00B0}C", weatherData.realFeel)
@@ -79,7 +82,7 @@ class WeatherViewModel {
                 guard let sself = self else { return }
                 
                 sself.isLoadingVar.value = false
-                sself.hasFailedVar.value = true
+                sself.hasFailedVar.value = sself.weatherData == nil
             },
             onCompleted: { [weak self] in
                 guard let sself = self else { return }
